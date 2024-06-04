@@ -14,4 +14,9 @@ class Course extends Model
         'description',
         'category_id',
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }
