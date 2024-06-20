@@ -8,9 +8,37 @@ use Illuminate\Support\Facades\Validator;
 
 class CourseController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $courses = Course::orderBy('created_at', 'desc')->get();
+        $field = 'created_at';
+        $order = 'desc';
+
+        if ( $request->sort ) 
+        {
+            $sorts = [
+                'title', '-title', 'id', '-id'
+            ];
+            
+            if( in_array($request->sort, $sorts) )
+            {
+                if( str_contains($request->sort, '-') )
+                {
+                    $field = str_replace('-', '', $request->sort);
+                    $order = 'desc';       
+                } else {
+                    $field = $request->sort;
+                    $order = 'asc';
+                }
+            }
+        }
+
+        if( $request->per_page > 0 )
+        {
+            $courses = Course::orderBy($field, $order)->paginate($request->per_page);
+        } else {
+            $courses = Course::orderBy($field, $order)->get();
+        }
+
         return response()->json($courses);
     }
 
